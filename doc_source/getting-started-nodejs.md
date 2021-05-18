@@ -85,43 +85,41 @@ To create the bucket, you create a constant that runs the `CreateBucketCommand` 
 To create and upload an object to the new bucket after it is created, you create a constant that runs the `PutObjectCommand`, also using the `.send` method using the async/await pattern, and passing in the bucket, key, and body peramters\. If an error occurs, the second `catch` statement returns an error\.
 
 ```
-// Import required AWS SDK clients and commands for Node.js
-const {
-  S3Client,
-  PutObjectCommand,
-  CreateBucketCommand
-} = require("@aws-sdk/client-s3");
+// Import required AWS SDK clients and commands for Node.js.
+import { S3Client, PutObjectCommand, CreateBucketCommand } from "@aws-sdk/client-s3";
+// const { S3Client, PutObjectCommand, CreateBucketCommand } = require("@aws-sdk/client-s3");
 
-// Set the AWS region
-const REGION = "REGION"; // e.g., "us-east-1"
+(async () => {
 
-// Set the bucket parameters
-const bucketName = "BUCKET_NAME";
-const bucketParams = { Bucket: bucketName };
+    // Set the AWS region
+    const REGION = "REGION"; // The AWS Region. For example, "us-east-1".
 
-// Create name for uploaded object key
-const keyName = "hello_world.txt";
-const objectParams = { Bucket: bucketName, Key: keyName, Body: "Hello World!" };
+    // Set the parameters
+    const params = {
+        Bucket: "BUCKET_NAME", // The name of the bucket. For example, 'sample_bucket_101'.
+        Key: "KEY", // The name of the object. For example, 'sample_upload.txt'.
+        Body: "BODY" // The content of the object. For example, 'Hello world!".
+    }    
 
-// Create an S3 client service object
-const s3 = new S3Client({ region: REGION });
+    // Create an Amazon Simple Storage Solutiou (Amazon S3) client service object.
+    const s3Client = new S3Client({ region: REGION });
+    try {
+        const data = await s3Client.send(new CreateBucketCommand({Bucket: params.Bucket}));
+        console.log(data);
+        console.log("Successfully created a bucket: ", data.Location);
+    } catch (err) {
+        console.log("Error", err);
+    }
 
-const run = async () => {
-  // Create S3 bucket
-  try {
-    const data = await s3.send(new CreateBucketCommand(bucketParams));
-    console.log("Success. Bucket created.");
-  } catch (err) {
-    console.log("Error", err);
-  }
-  try {
-    const results = await s3.send(new PutObjectCommand(objectParams));
-    console.log("Successfully uploaded data to " + bucketName + "/" + keyName);
-  } catch (err) {
-    console.log("Error", err);
-  }
-};
-run();
+    // Create an object and upload it to the Amazon S3 bucket.
+    try {
+        const results = await s3Client.send(new PutObjectCommand(params));
+        console.log(results);
+        console.log("Successfully created " + params.Key + " and uploaded it to " + params.Bucket + "/" + params.Key);
+    } catch (err) {
+        console.log("Error", err);
+    }
+})();
 ```
 
 The example code can be found [here on GitHub](https://github.com/awsdocs/aws-doc-sdk-examples/blob/master/javascriptv3/example_code/nodegetstarted/src/sample.ts)\.
